@@ -15,6 +15,7 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-batch'
+  implementation 'org.springframework.boot:spring-boot-starter-mail'
 //	runtimeOnly 'org.hsqldb:hsqldb'
 	implementation("org.postgresql:postgresql:42.2.5")
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

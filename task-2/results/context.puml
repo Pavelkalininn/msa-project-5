@@ -1,0 +1,19 @@
+@startuml
+title Контекстная диаграмма: Генератор прайс-листов
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+
+System_Boundary(k8s, "k8s", "Kluster"){
+ComponentDb(bd, "PostgreSQL основная БД", "External bank for processing payments")
+Component(CronJob, "K8S CronJob", Python)
+}
+
+Component(Files, "CSV файлы прайс-листов", "s3")
+
+Rel(bd,CronJob,"Ежедневно в 6:00 читает данные")
+Rel(CronJob,Files,"Сохраняет в CSV Файл")
+
+@enduml

@@ -1,0 +1,17 @@
+":{"module":{"running":0}},"output":{"events":{"active":0}},"pipeline":{"clients":1,"events":{"active":0}}}
+,"registrar":{"states":{"current":0}},"system":{"load":{"1":2.91,"15":0.71,"5":1.67,"norm":{"1":0.1323,"15":0.0323,"5":0.0759}}}}}}
+logstash       | [2025-11-17T17:30:39,894][INFO ][logstash.outputs.elasticsearch][main] Failed to perform request {:message=>"elasticsearch: Temporary failure in name resolution", :exception=>Manticore::ResolutionFailure, :cause=>java.net.UnknownHostException: elasticsearch: Temporary failure in name resolution}
+logstash       | [2025-11-17T17:30:39,894][WARN ][logstash.outputs.elasticsearch][main] Attempted to resurrect connection to dead ES instance, but got an error {:url=>"http://elasticsearch:9200/", :exception=>LogSt
+ash::Outputs::ElasticSearch::HttpClient::Pool::HostUnreachableError, :message=>"Elasticsearch Unreachable:
+[http://elasticsearch:9200/][Manticore::ResolutionFailure] elasticsearch: Temporary failure in name resolution"}
+logstash       | [2025-11-17T17:30:40,898][INFO ][logstash.outputs.elasticsearch][main] Failed to perform request {:message=>"elasticsearch", :exception=>Manticore::ResolutionFailure, :cause=>java.net.UnknownHostException: elasticsearch}
+logstash       | [2025-11-17T17:30:40,898][WARN ][logstash.outputs.elasticsearch][main] Attempted to resurrect connection to dead ES instance, but got an error {:url=>"http://elasticsearch:9200/", :exception=>LogSt
+ash::Outputs::ElasticSearch::HttpClient::Pool::HostUnreachableError, :message=>"Elasticsearch Unreachable: [http://elasticsearch:9200/][Manticore::ResolutionFailure] elasticsearch"}
+logstash       | [2025-11-17T17:30:45,902][INFO ][logstash.outputs.elasticsearch][main] Failed to perform request {:message=>"elasticsearch", :exception=>Manticore::ResolutionFailure, :cause=>java.net.UnknownHostException: elasticsearch}
+logstash       | [2025-11-17T17:30:45,902][WARN ][logstash.outputs.elasticsearch][main] Attempted to resurrect connection to dead ES instance, but got an error {:url=>"http://elasticsearch:9200/", :exception=>LogSt
+ash::Outputs::ElasticSearch::HttpClient::Pool::HostUnreachableError, :message=>"Elasticsearch Unreachable: [http://elasticsearch:9200/][Manticore::ResolutionFailure] elasticsearch"}
+elasticsearch  | Nov 17, 2025 5:30:57 PM sun.util.locale.provider.LocaleProviderAdapter <clinit>
+elasticsearch  | WARNING: COMPAT locale provider will be removed in a future release
+elasticsearch  | {"type": "server", "timestamp": "2025-11-17T17:30:58,287Z", "level": "INFO", "component": "o.e.n.Node", "cluster.name": "sample-elk", "node.name": "636a731d9922", "message": "version[7.17.28], pid[
+7], build[default/docker/139cb5a961d8de68b8e02c45cc47f5289a3623af/2025-02-20T09:05:31.349013687Z], OS[Linux
+/5.15.167.4-microsoft-standard-WSL2/amd64], JVM[Oracle Corporation/OpenJDK 64-Bit Server VM/22.0.2/22.0.2+9-70]" }

@@ -1,0 +1,65 @@
+@startuml
+title Контекстная диаграмма: Складские решения для хранения стройматериалов.
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "Сотрудник склада", "Использует веб приложение загрузки отчётов")
+Person(admin, "Администратор системы / аналитик", "Просматривает метрики")
+
+Component_Ext(EmailServer, "EmailServer", "SMTP сервер для рассылки уведомлений")
+
+
+  Rel(EmailServer, admin,"Уведомление пользователя при триггере метрик")
+
+System_Boundary(TradeWare, "TradeWare system"){
+  Component(nginx, "Container, Nginx") {
+    Component(Frontend, "Static, JS, Angular", "Статика пользовательского веб интерфейса")
+  }
+
+  Component(Filebeat, "Filebeat")
+  Component(Logstash, "Logstash")
+  ComponentDb(ElasticSearch, "ElasticSearch")
+  Component(Kibana, "Kibana")
+
+  Rel(Filebeat, nginx,"Чтение логов")
+  Rel(Filebeat, Logstash,"Передача данных в Logstash")
+  Rel(Logstash, ElasticSearch,"Отправка данных")
+  Rel(Kibana, ElasticSearch,"Обмен данными")
+  Rel(admin, Kibana,"Просмотр и анализ метрик")
+
+  System_Boundary(TradeWareBackend, "TradeWare backend"){
+  Component(JAvaApp, Component: WildFly/Java", "Сервер с Java приложением содержащим логику обработки отчётов")
+  Component(SpringBatch, Component: WildFly/SpringBatch", "SpringBatch загрузчик, масштабируемый")
+  Component(Jaeger, Component: WildFly/Jaeger", "Информация трейсинга")
+  ComponentDb(nomenclatureDB, "Актуальные данные о наличии товаров на складах", "Container: PostgreSQL")
+  ComponentDb(fileSystem, "Загружаемые файлы отчётов", "Container: Google cloud storage")
+  ComponentDb(warehouseDB, "Данные о характеристиках товаров, промо акции и т.д.", "Container: PostgreSQL")
+}
+
+
+
+  Component(Prometheus, "Prometheus")
+  Component(Grafana, "Grafana")
+  Rel(admin, Grafana,"Просмотр и анализ метрик")
+  Rel(Grafana, Prometheus,"Получение метрик")
+  Rel(Prometheus, JAvaApp,"Получение метрик")
+  Rel(Prometheus, SpringBatch,"Получение метрик")
+  Rel(Prometheus, nginx,"Получение метрик")
+  Rel(Grafana, EmailServer,"Уведомление пользователя при триггере метрик")
+
+Rel(Frontend,JAvaApp,"Вызывает REST API JSON/HTTP")
+
+Rel(JAvaApp,nomenclatureDB,"Получение данных", "SQL")
+Rel(Frontend,SpringBatch,"Отправка файла для загрузки отчётов о товарах", "SQL")
+Rel(JAvaApp,warehouseDB,"Получение и запись  данных", "SQL")
+Rel(SpringBatch,Jaeger,"Отправляет трейс запросов")
+
+Rel(JAvaApp,Jaeger,"Отправляет трейс запросов")
+
+Rel(SpringBatch,fileSystem,"Запись данных", "SQL")
+Rel(SpringBatch,nomenclatureDB,"Запись  данных", "SQL")
+Rel(user,Frontend,"Использует")
+
+@enduml

@@ -1,0 +1,38 @@
+@startuml
+title Контекстная диаграмма: Складские решения для хранения стройматериалов.
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "Сотрудник склада", "Использует веб приложение загрузки отчётов")
+
+
+System_Boundary(TradeWare, "TradeWare system"){
+  Component(Frontend, "Container, JS, Angular", "Пользовательский веб интерфейс")
+
+  System_Boundary(TradeWareBackend, "TradeWare backend"){
+
+  Component(JAvaApp, Component: WildFly/Java", "Сервер с Java приложением содержащим логику обработки отчётов")
+  Component(SpringBatch, Component: WildFly/SpringBatch", "SpringBatch загрузчик, масштабируемый")
+  Component(Jaeger, Component: WildFly/Jaeger", "Информация трейсинга")
+
+  ComponentDb(nomenclatureDB, "Актуальные данные о наличии товаров на складах", "Container: PostgreSQL")
+  ComponentDb(fileSystem, "Загружаемые файлы отчётов", "Container: Google cloud storage")
+  ComponentDb(warehouseDB, "Данные о характеристиках товаров, промо акции и т.д.", "Container: PostgreSQL")
+}
+
+Rel(Frontend,JAvaApp,"Вызывает REST API JSON/HTTP")
+
+Rel(JAvaApp,nomenclatureDB,"Получение данных", "SQL")
+Rel(Frontend,SpringBatch,"Отправка файла для загрузки отчётов о товарах", "SQL")
+Rel(JAvaApp,warehouseDB,"Получение и запись  данных", "SQL")
+Rel(SpringBatch,Jaeger,"Отправляет трейс запросов")
+
+Rel(JAvaApp,Jaeger,"Отправляет трейс запросов")
+
+Rel(SpringBatch,fileSystem,"Запись данных", "SQL")
+Rel(SpringBatch,nomenclatureDB,"Запись  данных", "SQL")
+Rel(user,Frontend,"Использует")
+
+@enduml

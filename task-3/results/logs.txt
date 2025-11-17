@@ -1,0 +1,53 @@
+kubectl apply -f job.yaml
+cronjob.batch/price-list-generator created
+
+
+kubectl get cronjobs
+NAME                   SCHEDULE    TIMEZONE   SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+price-list-generator   0 6 * * *   <none>     False     0        <none>          9s
+
+
+kubectl describe cronjob price-list-generator
+Name:                          price-list-generator
+Namespace:                     default
+Labels:                        <none>
+Annotations:                   <none>
+Schedule:                      44 * * * *
+Concurrency Policy:            Forbid
+Suspend:                       False
+Successful Job History Limit:  3
+Failed Job History Limit:      1
+Starting Deadline Seconds:     <unset>
+Selector:                      <unset>
+Parallelism:                   <unset>
+Completions:                   <unset>
+Pod Template:
+  Labels:  <none>
+  Containers:
+   exporter:
+    Image:      accounts-exporter:latest
+    Port:       <none>
+    Host Port:  <none>
+    Environment:
+      DB_HOST:      dev-db
+      DB_PORT:      5432
+      DB_NAME:      dcmsportal
+      DB_USER:      <set to the key 'username' in secret 'db-credentials'>  Optional: false
+      DB_PASSWORD:  <set to the key 'password' in secret 'db-credentials'>  Optional: false
+      OUTPUT_DIR:   /app/output
+    Mounts:
+      /app/output from output-volume (rw)
+  Volumes:
+   output-volume:
+    Type:            PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:       price-list-pvc
+    ReadOnly:        false
+  Node-Selectors:    <none>
+  Tolerations:       <none>
+Last Schedule Time:  Mon, 03 Nov 2025 20:44:00 +0300
+Active Jobs:         price-list-generator-29369864
+Events:
+  Type     Reason            Age                From                Message
+  ----     ------            ----               ----                -------
+  Normal   SuccessfulCreate  4m46s              cronjob-controller  Created job price-list-generator-29369864
+  Warning  UnexpectedJob     93s (x2 over 93s)  cronjob-controller  Saw a job that the controller did not create or forgot: test-run-1

@@ -1,0 +1,29 @@
+@startuml
+title Контекстная диаграмма: Генератор прайс-листов
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "Сотрудник склада", "Использует веб приложение загрузки отчётов")
+
+
+System_Boundary(TradeWare, "TradeWare system"){
+  Component(Frontend, "Container, JS, Angular", "Пользовательский веб интерфейс")
+
+  System_Boundary(TradeWareBackend, "TradeWare backend"){
+
+  Component(JAvaApp, Cjmponent: WildFly/Angular", "Сервер с Java приложением содержащим логику обработки отчётов")
+  ComponentDb(nomenclatureDB, "Актуальные данные о наличии товаров на складах", "Container: PostgreSQL")
+  ComponentDb(fileSystem, "Загружаемые файлы отчётов", "Container: Google cloud storage")
+  ComponentDb(warehouseDB, "Данные о характеристиках товаров, промо акции и т.д.", "Container: PostgreSQL")
+}
+
+Rel(Frontend,JAvaApp,"Вызывает REST API JSON/HTTP")
+
+Rel(JAvaApp,nomenclatureDB,"Получение и запись данных", "SQL")
+Rel(JAvaApp,fileSystem,,"Получение и запись данных", "SQL")
+Rel(JAvaApp,warehouseDB,,"Получение  данных", "SQL")
+Rel(user,Frontend,"Использует")
+
+@enduml

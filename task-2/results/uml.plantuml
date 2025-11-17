@@ -1,0 +1,21 @@
+@startuml Context_Diagram_Simple
+title Контекстная диаграмма: Генератор прайс-листов
+
+rectangle "Kubernetes кластер" {
+  [K8s CronJob\nгенератор прайс-листов] as generator
+  [PostgreSQL\nосновная БД] as postgres
+}
+
+[CSV файлы\nпрайс-листов] as csv_files
+
+generator --> postgres : "Ежедневно в 6:00\nчитает данные"
+generator --> csv_files : "Сохраняет\nпрайс-листы"
+
+note right of generator
+  <b>Задачи:</b>
+  • Чтение данных из БД
+  • Генерация CSV
+  • Сохранение файлов
+end note
+
+@enduml

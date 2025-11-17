@@ -1,9 +1,13 @@
-version: "3.8"
-
 services:
   postgresdb:
     image: postgres
     restart: unless-stopped
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     env_file: ./.env
     environment:
       - POSTGRES_USER=$POSTGRESDB_USER
@@ -12,8 +16,27 @@ services:
     ports:
       - $POSTGRESDB_LOCAL_PORT:$POSTGRESDB_DOCKER_PORT
 
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager/templates:/etc/alertmanager/templates
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - /prometheus/alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--log.level=debug'
+      - '--web.external-url=http://localhost:9093'
+    depends_on:
+      - prometheus
+
   elasticsearch:
-    image: 'docker.elastic.co/elasticsearch/elasticsearch:7.17.28'
+    image: 'elasticsearch:7.17.28'
+    volumes:
+      - ./conf/elasticsearch/conf.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./elasticsearch/data:/usr/share/elasticsearch/data:z
     platform: linux/amd64
     container_name: 'elasticsearch'
     restart: 'unless-stopped'
@@ -23,31 +46,36 @@ services:
     environment:
       - 'discovery.type=single-node'
       - 'xpack.security.enabled=false'
-      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+      - 'ES_JAVA_OPTS=-Xms1g -Xmx1g'
     healthcheck:
       test: 'curl -f http://localhost:9200 || exit 1'
 
   logstash:
-    image: 'docker.elastic.co/logstash/logstash:7.17.28'
+    image: 'logstash:7.17.28'
     container_name: 'logstash'
     restart: 'unless-stopped'
     ports:
-      - '5044:5044'
+       - "5044:5044"
+       - "5010:5000"
+       - "9600:9600"
     volumes:
       - './logstash/pipeline:/usr/share/logstash/pipeline/'
+      - ./conf/logstash/conf.yml:/usr/share/logstash/config/logstash.yml:ro
     depends_on:
       - 'elasticsearch'
     healthcheck:
       test: 'curl -f http://localhost:9600 || exit 1'
 
   kibana:
-    image: 'docker.elastic.co/kibana/kibana:7.17.28'
+    image: 'kibana:7.17.28'
     container_name: 'kibana'
     restart: 'unless-stopped'
     ports:
       - '5601:5601'
     environment:
       - 'ELASTICSEARCH_HOSTS=http://elasticsearch:9200'
+    volumes:
+      - ./conf/kibana/conf.yml:/usr/share/kibana/config/kibana.yml:ro
     depends_on:
       - 'elasticsearch'
     healthcheck:
@@ -70,6 +98,7 @@ services:
     restart: 'unless-stopped'
     volumes:
       - './prometheus/prometheus.yml:/etc/prometheus/prometheus.yml'
+      - './prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml'
     ports:
       - '9090:9090'
     healthcheck:
@@ -92,11 +121,28 @@ services:
 
   app:
     depends_on:
-      - postgresdb
-      - filebeat1
-      - grafana
+      postgresdb:
+        condition: service_healthy
     image: batch-processing
+    restart: unless-stopped
+    ports:
+    - "8080:8080"
     build:
       context: .
       dockerfile: ./Dockerfile
-    restart: no
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./var/log/nginx:/var/log/nginx
+
+    ports:
+      - 80:80

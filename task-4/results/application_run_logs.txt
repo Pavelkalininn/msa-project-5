@@ -1,0 +1,186 @@
+pkln@5CG4221J5N:~/projects/msa-project-5/task-4/initial$ docker build . -t batch-processing
+[+] Building 1.0s (7/7) FINISHED                                                                                        docker:default
+ => [internal] load build definition from Dockerfile                                                                              0.0s
+ => => transferring dockerfile: 148B                                                                                              0.0s
+ => [internal] load metadata for docker.io/library/openjdk:26-ea-jdk                                                              0.6s
+ => [internal] load .dockerignore                                                                                                 0.0s
+ => => transferring context: 2B                                                                                                   0.0s
+ => [internal] load build context                                                                                                 0.1s
+ => => transferring context: 17.84MB                                                                                              0.1s
+ => CACHED [1/3] FROM docker.io/library/openjdk:26-ea-jdk@sha256:27e14e5f9d7203d9df3af107fdf38cd627b5a1d6de755d2feec4e01db6589c7  0.0s
+ => [2/3] COPY build/libs/*.jar app.jar                                                                                           0.1s
+ => exporting to image                                                                                                            0.1s
+ => => exporting layers                                                                                                           0.1s
+ => => writing image sha256:20e207fa6375e09b891cd7c15264d077624b1986f83e1cffe0a539651691fbb2                                      0.0s
+ => => naming to docker.io/library/batch-processing                                                                               0.0s
+
+ 1 warning found (use docker --debug to expand):
+ - WorkdirRelativePath: Relative workdir "." can have unexpected results if the base image changes (line 3)
+pkln@5CG4221J5N:~/projects/msa-project-5/task-4/initial$ docker compose up
+WARN[0000] /home/pkln/projects/msa-project-5/task-4/initial/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+[+] Running 2/2
+ ✔ Container initial-postgresdb-1  Created                                                                                        0.0s
+ ✔ Container initial-app-1         Recreated                                                                                      0.1s
+Attaching to app-1, postgresdb-1
+postgresdb-1  |
+postgresdb-1  | PostgreSQL Database directory appears to contain a database; Skipping initialization
+postgresdb-1  |
+postgresdb-1  | 2025-11-17 16:39:23.284 UTC [1] LOG:  starting PostgreSQL 18.1 (Debian 18.1-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+postgresdb-1  | 2025-11-17 16:39:23.285 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+postgresdb-1  | 2025-11-17 16:39:23.285 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+postgresdb-1  | 2025-11-17 16:39:23.293 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgresdb-1  | 2025-11-17 16:39:23.306 UTC [32] LOG:  database system was shut down at 2025-11-17 16:39:11 UTC
+postgresdb-1  | 2025-11-17 16:39:23.313 UTC [1] LOG:  database system is ready to accept connections
+app-1         |
+app-1         |   .   ____          _            __ _ _
+app-1         |  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+app-1         | ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+app-1         |  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+app-1         |   '  |____| .__|_| |_|_| |_\__, | / / / /
+app-1         |  =========|_|==============|___/=/_/_/_/
+app-1         |
+app-1         |  :: Spring Boot ::                (v3.5.3)
+app-1         |
+app-1         | 2025-11-17T16:39:24.295Z  INFO 1 --- [           main] c.e.b.BatchProcessingApplication         : Starting BatchProcessingApplication v0.0.1-SNAPSHOT using Java 26-ea with PID 1 (/app.jar started by root in /)
+app-1         | 2025-11-17T16:39:24.297Z  INFO 1 --- [           main] c.e.b.BatchProcessingApplication         : No active profile set, falling back to 1 default profile: "default"
+app-1         | 2025-11-17T16:39:24.965Z  INFO 1 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+app-1         | 2025-11-17T16:39:25.141Z  INFO 1 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1fde4f40
+app-1         | 2025-11-17T16:39:25.142Z  INFO 1 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+postgresdb-1  | 2025-11-17 16:39:25.180 UTC [36] ERROR:  relation "batch_job_instance" already exists
+postgresdb-1  | 2025-11-17 16:39:25.180 UTC [36] STATEMENT:  CREATE TABLE BATCH_JOB_INSTANCE ( JOB_INSTANCE_ID BIGINT NOT NULL PRIMARY KEY , VERSION BIGINT , JOB_NAME VARCHAR(100) NOT NULL, JOB_KEY VARCHAR(32) NOT NULL, constraint JOB_INST_UN unique (JOB_NAME, JOB_KEY) )
+postgresdb-1  | 2025-11-17 16:39:25.183 UTC [36] ERROR:  relation "batch_job_execution" already exists
+postgresdb-1  | 2025-11-17 16:39:25.183 UTC [36] STATEMENT:  CREATE TABLE BATCH_JOB_EXECUTION ( JOB_EXECUTION_ID BIGINT NOT NULL PRIMARY KEY , VERSION BIGINT , JOB_INSTANCE_ID BIGINT NOT NULL, CREATE_TIME TIMESTAMP NOT NULL, START_TIME TIMESTAMP DEFAULT NULL , END_TIME
+TIMESTAMP DEFAULT NULL , STATUS VARCHAR(10) , EXIT_CODE VARCHAR(2500) , EXIT_MESSAGE VARCHAR(2500) , LAST_UPDATED TIMESTAMP, constraint JOB_INST_EXEC_FK foreign key (JOB_INSTANCE_ID) references BATCH_JOB_INSTANCE(JOB_INSTANCE_ID) )
+postgresdb-1  | 2025-11-17 16:39:25.185 UTC [36] ERROR:  relation "batch_job_execution_params" already exists
+postgresdb-1  | 2025-11-17 16:39:25.185 UTC [36] STATEMENT:  CREATE TABLE BATCH_JOB_EXECUTION_PARAMS ( JOB_EXECUTION_ID BIGINT NOT NULL , PARAMETER_NAME VARCHAR(100) NOT NULL , PARAMETER_TYPE VARCHAR(100) NOT NULL , PARAMETER_VALUE VARCHAR(2500) , IDENTIFYING CHAR(1) NOT NULL , constraint JOB_EXEC_PARAMS_FK foreign key (JOB_EXECUTION_ID) references BATCH_JOB_EXECUTION(JOB_EXECUTION_ID) )
+postgresdb-1  | 2025-11-17 16:39:25.187 UTC [36] ERROR:  relation "batch_step_execution" already exists
+postgresdb-1  | 2025-11-17 16:39:25.187 UTC [36] STATEMENT:  CREATE TABLE BATCH_STEP_EXECUTION ( STEP_EXECUTION_ID BIGINT NOT NULL PRIMARY KEY , VERSION BIGINT NOT NULL, STEP_NAME VARCHAR(100) NOT NULL, JOB_EXECUTION_ID BIGINT NOT NULL, CREATE_TIME TIMESTAMP NOT NULL, S
+TART_TIME TIMESTAMP DEFAULT NULL , END_TIME TIMESTAMP DEFAULT NULL , STATUS VARCHAR(10) , COMMIT_COUNT BIGINT , READ_COUNT BIGINT , FIL
+TER_COUNT BIGINT , WRITE_COUNT BIGINT , READ_SKIP_COUNT BIGINT , WRITE_SKIP_COUNT BIGINT , PROCESS_SKIP_COUNT BIGINT , ROLLBACK_COUNT B
+IGINT , EXIT_CODE VARCHAR(2500) , EXIT_MESSAGE VARCHAR(2500) , LAST_UPDATED TIMESTAMP, constraint JOB_EXEC_STEP_FK foreign key (JOB_EXECUTION_ID) references BATCH_JOB_EXECUTION(JOB_EXECUTION_ID) )
+postgresdb-1  | 2025-11-17 16:39:25.188 UTC [36] ERROR:  relation "batch_step_execution_context" already exists
+postgresdb-1  | 2025-11-17 16:39:25.188 UTC [36] STATEMENT:  CREATE TABLE BATCH_STEP_EXECUTION_CONTEXT ( STEP_EXECUTION_ID BIGINT NOT NULL PRIMARY KEY, SHORT_CONTEXT VARCHAR(2500) NOT NULL, SERIALIZED_CONTEXT TEXT , constraint STEP_EXEC_CTX_FK foreign key (STEP_EXECUTION_ID) references BATCH_STEP_EXECUTION(STEP_EXECUTION_ID) )
+postgresdb-1  | 2025-11-17 16:39:25.189 UTC [36] ERROR:  relation "batch_job_execution_context" already exists
+postgresdb-1  | 2025-11-17 16:39:25.189 UTC [36] STATEMENT:  CREATE TABLE BATCH_JOB_EXECUTION_CONTEXT ( JOB_EXECUTION_ID BIGINT NOT NULL PRIMARY KEY, SHORT_CONTEXT VARCHAR(2500) NOT NULL, SERIALIZED_CONTEXT TEXT , constraint JOB_EXEC_CTX_FK foreign key (JOB_EXECUTION_ID) references BATCH_JOB_EXECUTION(JOB_EXECUTION_ID) )
+postgresdb-1  | 2025-11-17 16:39:25.189 UTC [36] ERROR:  relation "batch_step_execution_seq" already exists
+postgresdb-1  | 2025-11-17 16:39:25.189 UTC [36] STATEMENT:  CREATE SEQUENCE BATCH_STEP_EXECUTION_SEQ MAXVALUE 9223372036854775807 NO CYCLE
+postgresdb-1  | 2025-11-17 16:39:25.190 UTC [36] ERROR:  relation "batch_job_execution_seq" already exists
+postgresdb-1  | 2025-11-17 16:39:25.190 UTC [36] STATEMENT:  CREATE SEQUENCE BATCH_JOB_EXECUTION_SEQ MAXVALUE 9223372036854775807 NO CYCLE
+postgresdb-1  | 2025-11-17 16:39:25.191 UTC [36] ERROR:  relation "batch_job_seq" already exists
+postgresdb-1  | 2025-11-17 16:39:25.191 UTC [36] STATEMENT:  CREATE SEQUENCE BATCH_JOB_SEQ MAXVALUE 9223372036854775807 NO CYCLE
+app-1         | 2025-11-17T16:39:25.445Z  INFO 1 --- [           main] c.e.b.BatchProcessingApplication         : Started BatchProcessingApplication in 1.511 seconds (process running for 1.9)
+app-1         | 2025-11-17T16:39:25.448Z  INFO 1 --- [           main] o.s.b.a.b.JobLauncherApplicationRunner   : Running default command line with: []
+app-1         | 2025-11-17T16:39:25.506Z  INFO 1 --- [           main] o.s.b.c.l.s.TaskExecutorJobLauncher      : Job: [SimpleJob: [name=importProductJob]] launched with the following parameters: [{'run.id':'{value=5, type=class java.lang.Long, identifying=true}'}]
+app-1         | 2025-11-17T16:39:25.530Z  INFO 1 --- [           main] o.s.batch.core.job.SimpleStepHandler     : Executing step: [step1]
+app-1         | 2025-11-17T16:39:25.555Z  INFO 1 --- [           main] c.e.b.ProductItemProcessor               : Processing product: hammer
+app-1         | 2025-11-17T16:39:25.557Z  INFO 1 --- [           main] c.e.b.ProductItemProcessor               : Processed 'hammer' -> 'HAMMER'
+app-1         | 2025-11-17T16:39:25.558Z  INFO 1 --- [           main] c.e.b.ProductItemProcessor               : Processing product: sink
+app-1         | 2025-11-17T16:39:25.558Z  INFO 1 --- [           main] c.e.b.ProductItemProcessor               : Processed 'sink' -> 'SINK'
+app-1         | 2025-11-17T16:39:25.559Z  INFO 1 --- [           main] c.e.b.ProductItemProcessor               : Processing product: roof_shell
+app-1         | 2025-11-17T16:39:25.560Z  INFO 1 --- [           main] c.e.b.ProductItemProcessor               : Processed 'roof_shell' -> 'ROOF_SHELL'
+app-1         | 2025-11-17T16:39:25.560Z  INFO 1 --- [           main] c.e.b.ProductItemProcessor               : Processing product: priming
+app-1         | 2025-11-17T16:39:25.561Z  INFO 1 --- [           main] c.e.b.ProductItemProcessor               : Processed 'priming' -> 'PRIMING'
+app-1         | 2025-11-17T16:39:25.561Z  INFO 1 --- [           main] c.e.b.ProductItemProcessor               : Processing product: clapboard
+app-1         | 2025-11-17T16:39:25.562Z  INFO 1 --- [           main] c.e.b.ProductItemProcessor               : Processed 'clapboard' -> 'CLAPBOARD'
+postgresdb-1  | 2025-11-17 16:39:25.571 UTC [36] ERROR:  duplicate key value violates unique constraint "products_pkey"
+postgresdb-1  | 2025-11-17 16:39:25.571 UTC [36] DETAIL:  Key (productid)=(1) already exists.
+postgresdb-1  | 2025-11-17 16:39:25.571 UTC [36] STATEMENT:  INSERT INTO products (productId, productSku, productName, productAmount, productData) VALUES ($1, $2, $3, $4, $5)
+app-1         | 2025-11-17T16:39:25.579Z  INFO 1 --- [           main] c.e.b.ProductItemProcessor               : Processing product: hammer
+app-1         | 2025-11-17T16:39:25.580Z  INFO 1 --- [           main] c.e.b.ProductItemProcessor               : Processed 'hammer' -> 'HAMMER'
+app-1         | 2025-11-17T16:39:25.584Z ERROR 1 --- [           main] o.s.batch.core.step.AbstractStep         : Encountered an error executing step step1 in job importProductJob
+app-1         |
+app-1         | org.springframework.retry.ExhaustedRetryException: Retry exhausted after last attempt in recovery path, but exception is not skippable.
+app-1         |         at org.springframework.batch.core.step.item.FaultTolerantChunkProcessor.lambda$write$4(FaultTolerantChunkProcessor.java:401) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.retry.support.RetryTemplate.handleRetryExhausted(RetryTemplate.java:573) ~[spring-retry-2.0.12.jar!/:na]
+app-1         |         at org.springframework.retry.support.RetryTemplate.doExecute(RetryTemplate.java:418) ~[spring-retry-2.0.12.jar!/:na]
+app-1         |         at org.springframework.retry.support.RetryTemplate.execute(RetryTemplate.java:276) ~[spring-retry-2.0.12.jar!/:na]
+app-1         |         at org.springframework.batch.core.step.item.BatchRetryTemplate.execute(BatchRetryTemplate.java:216) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.core.step.item.FaultTolerantChunkProcessor.write(FaultTolerantChunkProcessor.java:414) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.core.step.item.SimpleChunkProcessor.process(SimpleChunkProcessor.java:227) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.core.step.item.ChunkOrientedTasklet.execute(ChunkOrientedTasklet.java:75) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.core.step.tasklet.TaskletStep$ChunkTransactionCallback.doInTransaction(TaskletStep.java:383) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.core.step.tasklet.TaskletStep$ChunkTransactionCallback.doInTransaction(TaskletStep.java:307) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:140) ~[spring-tx-6.2.8.jar!/:6.2.8]
+app-1         |         at org.springframework.batch.core.step.tasklet.TaskletStep$2.doInChunkContext(TaskletStep.java:250) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.core.scope.context.StepContextRepeatCallback.doInIteration(StepContextRepeatCallback.java:82) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.repeat.support.RepeatTemplate.getNextResult(RepeatTemplate.java:369) ~[spring-batch-infrastructure-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.repeat.support.RepeatTemplate.executeInternal(RepeatTemplate.java:206) ~[spring-batch-infrastructure-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.repeat.support.RepeatTemplate.iterate(RepeatTemplate.java:140) ~[spring-batch-infrastructure-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.core.step.tasklet.TaskletStep.doExecute(TaskletStep.java:235) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.core.step.AbstractStep.execute(AbstractStep.java:230) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.core.job.SimpleStepHandler.handleStep(SimpleStepHandler.java:153) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.core.job.AbstractJob.handleStep(AbstractJob.java:408) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.core.job.SimpleJob.doExecute(SimpleJob.java:127) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.core.job.AbstractJob.execute(AbstractJob.java:307) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.core.launch.support.TaskExecutorJobLauncher$1.run(TaskExecutorJobLauncher.java:155) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.core.task.SyncTaskExecutor.execute(SyncTaskExecutor.java:50) ~[spring-core-6.2.8.jar!/:6.2.8]
+app-1         |         at org.springframework.batch.core.launch.support.TaskExecutorJobLauncher.run(TaskExecutorJobLauncher.java:146) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.boot.autoconfigure.batch.JobLauncherApplicationRunner.execute(JobLauncherApplicationRunner.java:210) ~[spring-boot-autoconfigure-3.5.3.jar!/:3.5.3]
+app-1         |         at org.springframework.boot.autoconfigure.batch.JobLauncherApplicationRunner.executeLocalJobs(JobLauncherApplicationRunner.java:194) ~[spring-boot-autoconfigure-3.5.3.jar!/:3.5.3]
+app-1         |         at org.springframework.boot.autoconfigure.batch.JobLauncherApplicationRunner.launchJobFromProperties(JobLauncherApplicationRunner.java:174) ~[spring-boot-autoconfigure-3.5.3.jar!/:3.5.3]
+app-1         |         at org.springframework.boot.autoconfigure.batch.JobLauncherApplicationRunner.run(JobLauncherApplicationRunner.java:169) ~[spring-boot-autoconfigure-3.5.3.jar!/:3.5.3]
+app-1         |         at org.springframework.boot.autoconfigure.batch.JobLauncherApplicationRunner.run(JobLauncherApplicationRunner.java:164) ~[spring-boot-autoconfigure-3.5.3.jar!/:3.5.3]
+app-1         |         at org.springframework.boot.SpringApplication.lambda$callRunner$4(SpringApplication.java:784) ~[spring-boot-3.5.3.jar!/:3.5.3]
+app-1         |         at org.springframework.util.function.ThrowingConsumer$1.acceptWithException(ThrowingConsumer.java:82) ~[spring-core-6.2.8.jar!/:6.2.8]
+app-1         |         at org.springframework.util.function.ThrowingConsumer.accept(ThrowingConsumer.java:60) ~[spring-core-6.2.8.jar!/:6.2.8]
+app-1         |         at org.springframework.util.function.ThrowingConsumer$1.accept(ThrowingConsumer.java:86) ~[spring-core-6.2.8.jar!/:6.2.8]
+app-1         |         at org.springframework.boot.SpringApplication.callRunner(SpringApplication.java:796) ~[spring-boot-3.5.3.jar!/:3.5.3]
+app-1         |         at org.springframework.boot.SpringApplication.callRunner(SpringApplication.java:784) ~[spring-boot-3.5.3.jar!/:3.5.3]
+app-1         |         at org.springframework.boot.SpringApplication.lambda$callRunners$3(SpringApplication.java:772) ~[spring-boot-3.5.3.jar!/:3.5.3]
+app-1         |         at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:186) ~[na:na]
+app-1         |         at java.base/java.util.stream.SortedOps$SizedRefSortingSink.end(SortedOps.java:357) ~[na:na]
+app-1         |         at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:571) ~[na:na]
+app-1         |         at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:560) ~[na:na]
+app-1         |         at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:153) ~[na:na]
+app-1         |         at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:176) ~[na:na]
+app-1         |         at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:265) ~[na:na]
+app-1         |         at java.base/java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:632) ~[na:na]
+app-1         |         at org.springframework.boot.SpringApplication.callRunners(SpringApplication.java:772) ~[spring-boot-3.5.3.jar!/:3.5.3]
+app-1         |         at org.springframework.boot.SpringApplication.run(SpringApplication.java:325) ~[spring-boot-3.5.3.jar!/:3.5.3]
+app-1         |         at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.5.3.jar!/:3.5.3]
+app-1         |         at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.5.3.jar!/:3.5.3]
+app-1         |         at com.example.batchprocessing.BatchProcessingApplication.main(BatchProcessingApplication.java:10) ~[!/:0.0.1-SNAPSHOT]
+app-1         |         at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[na:na]
+app-1         |         at java.base/java.lang.reflect.Method.invoke(Method.java:565) ~[na:na]
+app-1         |         at org.springframework.boot.loader.launch.Launcher.launch(Launcher.java:102) ~[app.jar:0.0.1-SNAPSHOT]
+app-1         |         at org.springframework.boot.loader.launch.Launcher.launch(Launcher.java:64) ~[app.jar:0.0.1-SNAPSHOT]
+app-1         |         at org.springframework.boot.loader.launch.JarLauncher.main(JarLauncher.java:40) ~[app.jar:0.0.1-SNAPSHOT]
+app-1         | Caused by: org.springframework.dao.DuplicateKeyException: PreparedStatementCallback; SQL [INSERT INTO products (productId, productSku, productName, productAmount, productData) VALUES (?, ?, ?, ?, ?)]; Batch entry 0 INSERT INTO products (productId, produc
+tSku, productName, productAmount, productData) VALUES (1, 20001, 'HAMMER', 45, 'Loyality_off') was aborted: ERROR: duplicate key value violates unique constraint "products_pkey"
+app-1         |   Detail: Key (productid)=(1) already exists.  Call getNextException to see other errors in the batch.
+app-1         |         at org.springframework.jdbc.support.SQLStateSQLExceptionTranslator.doTranslate(SQLStateSQLExceptionTranslator.java:116) ~[spring-jdbc-6.2.8.jar!/:6.2.8]
+app-1         |         at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:107) ~[spring-jdbc-6.2.8.jar!/:6.2.8]
+app-1         |         at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:116) ~[spring-jdbc-6.2.8.jar!/:6.2.8]
+app-1         |         at org.springframework.jdbc.core.JdbcTemplate.translateException(JdbcTemplate.java:1556) ~[spring-jdbc-6.2.8.jar!/:6.2.8]
+app-1         |         at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:677) ~[spring-jdbc-6.2.8.jar!/:6.2.8]
+app-1         |         at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:701) ~[spring-jdbc-6.2.8.jar!/:6.2.8]
+app-1         |         at org.springframework.jdbc.core.JdbcTemplate.batchUpdate(JdbcTemplate.java:1049) ~[spring-jdbc-6.2.8.jar!/:6.2.8]
+app-1         |         at org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate.batchUpdate(NamedParameterJdbcTemplate.java:377) ~[spring-jdbc-6.2.8.jar!/:6.2.8]
+app-1         |         at org.springframework.batch.item.database.JdbcBatchItemWriter.write(JdbcBatchItemWriter.java:182) ~[spring-batch-infrastructure-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.core.step.item.SimpleChunkProcessor.writeItems(SimpleChunkProcessor.java:203) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.core.step.item.SimpleChunkProcessor.doWrite(SimpleChunkProcessor.java:170) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.batch.core.step.item.FaultTolerantChunkProcessor.lambda$write$2(FaultTolerantChunkProcessor.java:331) ~[spring-batch-core-5.2.2.jar!/:5.2.2]
+app-1         |         at org.springframework.retry.support.RetryTemplate.doExecute(RetryTemplate.java:357) ~[spring-retry-2.0.12.jar!/:na]
+app-1         |         ... 52 common frames omitted
+app-1         | Caused by: java.sql.BatchUpdateException: Batch entry 0 INSERT INTO products (productId, productSku, productName, productAmount, productData) VALUES (1, 20001, 'HAMMER', 45, 'Loyality_off') was aborted: ERROR: duplicate key value violates unique constraint "products_pkey"
+app-1         |   Detail: Key (productid)=(1) already exists.  Call getNextException to see other errors in the batch.
+app-1         |         at org.postgresql.jdbc.BatchResultHandler.handleError(BatchResultHandler.java:148) ~[postgresql-42.2.5.jar!/:42.2.5]
+app-1         |         at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2184) ~[postgresql-42.2.5.jar!/:42.2.5]
+app-1         |         at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:481) ~[postgresql-42.2.5.jar!/:42.2.5]
+app-1         |         at org.postgresql.jdbc.PgStatement.executeBatch(PgStatement.java:840) ~[postgresql-42.2.5.jar!/:42.2.5]
+app-1         |         at org.postgresql.jdbc.PgPreparedStatement.executeBatch(PgPreparedStatement.java:1538) ~[postgresql-42.2.5.jar!/:42.2.5]
+app-1         |         at com.zaxxer.hikari.pool.ProxyStatement.executeBatch(ProxyStatement.java:128) ~[HikariCP-6.3.0.jar!/:na]
+app-1         |         at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeBatch(HikariProxyPreparedStatement.java) ~[HikariCP-6.3.0.jar!/:na]
+app-1         |         at org.springframework.jdbc.core.JdbcTemplate.lambda$getPreparedStatementCallback$7(JdbcTemplate.java:1617) ~[spring-jdbc-6.2.8.jar!/:6.2.8]
+app-1         |         at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:658) ~[spring-jdbc-6.2.8.jar!/:6.2.8]
+app-1         |         ... 60 common frames omitted
+app-1         | Caused by: org.postgresql.util.PSQLException: ERROR: duplicate key value violates unique constraint "products_pkey"
+app-1         |   Detail: Key (productid)=(1) already exists.
+app-1         |         at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2440) ~[postgresql-42.2.5.jar!/:42.2.5]
+app-1         |         at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2183) ~[postgresql-42.2.5.jar!/:42.2.5]
+app-1         |         ... 67 common frames omitted
+app-1         |
+app-1         | 2025-11-17T16:39:25.588Z  INFO 1 --- [           main] o.s.batch.core.step.AbstractStep         : Step: [step1] executed in 57ms
+app-1         | 2025-11-17T16:39:25.601Z ERROR 1 --- [           main] c.e.b.JobCompletionNotificationListener  : !!! JOB FAILED! Job ID: 5, Errors: [org.springframework.retry.ExhaustedRetryException: Retry exhausted after last attempt in recovery path, but exception is not skippable.]
+app-1         | 2025-11-17T16:39:25.606Z  INFO 1 --- [           main] o.s.b.c.l.s.TaskExecutorJobLauncher      : Job: [SimpleJob: [name=importProductJob]] completed with the following parameters: [{'run.id':'{value=5, type=clasapp-1         | 2025-11-17T16:39:25.618Z  INFO 1 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+app-1 exited with code 5

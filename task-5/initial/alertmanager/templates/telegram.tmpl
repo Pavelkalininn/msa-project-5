@@ -1,0 +1,61 @@
+{{/* Основной шаблон */}}
+{{ define "telegram.default" }}
+🟡 <b>Alert</b>
+<b>Name:</b> {{ .CommonLabels.alertname }}
+<b>Severity:</b> {{ .CommonLabels.severity }}
+<b>Service:</b> {{ .CommonLabels.service }}
+<b>Summary:</b> {{ .CommonAnnotations.summary }}
+{{ if .CommonAnnotations.description }}<b>Description:</b> {{ .CommonAnnotations.description }}{{ end }}
+<b>Status:</b> {{ .Status }}
+<b>Time:</b> {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+{{ end }}
+
+{{/* Критические алерты приложения */}}
+{{ define "telegram.critical" }}
+🔴 <b>CRITICAL ALERT - APPLICATION</b> 🔴
+<b>Alert:</b> {{ .CommonLabels.alertname }}
+
+🚨 <b>{{ .CommonAnnotations.summary }}</b>
+
+{{ .CommonAnnotations.description }}
+
+⏰ <b>Started:</b> {{ .StartsAt.Format "15:04:05" }}
+{{ if .CommonAnnotations.value }}📊 <b>Value:</b> {{ .CommonAnnotations.value }}{{ end }}
+
+{{ if .CommonAnnotations.runbook }}📖 <b>Runbook:</b> <a href="{{ .CommonAnnotations.runbook }}">View Solution</a>{{ end }}
+{{ if .GeneratorURL }}🔗 <b>Details:</b> <a href="{{ .GeneratorURL }}">Prometheus</a>{{ end }}
+
+{{ if eq .Status "firing" }}❗️ <b>IMMEDIATE ATTENTION REQUIRED</b>{{ end }}
+{{ end }}
+
+{{/* Warning алерты приложения */}}
+{{ define "telegram.warning" }}
+🟠 <b>WARNING ALERT - APPLICATION</b> 🟠
+<b>Alert:</b> {{ .CommonLabels.alertname }}
+
+⚠️ <b>{{ .CommonAnnotations.summary }}</b>
+
+{{ .CommonAnnotations.description }}
+
+⏰ <b>Started:</b> {{ .StartsAt.Format "15:04:05" }}
+{{ if .CommonAnnotations.value }}📊 <b>Value:</b> {{ .CommonAnnotations.value }}{{ end }}
+
+{{ if .CommonAnnotations.runbook }}📖 <b>Runbook:</b> <a href="{{ .CommonAnnotations.runbook }}">View Solution</a>{{ end }}
+
+{{ if eq .Status "firing" }}🔍 <b>Investigation needed</b>{{ end }}
+{{ end }}
+
+{{/* Шаблон для восстановления */}}
+{{ define "telegram.resolved" }}
+✅ <b>RESOLVED</b> ✅
+<b>Alert:</b> {{ .CommonLabels.alertname }}
+<b>Service:</b> {{ .CommonLabels.service }}
+
+🎉 <b>{{ .CommonAnnotations.summary }}</b>
+
+⏰ <b>Started:</b> {{ .StartsAt.Format "15:04:05" }}
+🕒 <b>Resolved:</b> {{ .EndsAt.Format "15:04:05" }}
+⏱ <b>Duration:</b> {{ .EndsAt.Sub .StartsAt }}
+
+✅ <b>Issue has been resolved</b>
+{{ end }}

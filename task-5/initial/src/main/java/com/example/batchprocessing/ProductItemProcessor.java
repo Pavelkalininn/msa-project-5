@@ -21,9 +21,53 @@ public class ProductItemProcessor implements ItemProcessor<Product, Product> {
 
     @Override
 	public Product process(final Product product) {
-      //todo
+    log.info("Processing product: {}", product.productName());
 
-		return //todo
-	}
+    if (product.productName() == null || product.productName().trim().isEmpty()) {
+        log.warn("Product with SKU {} has empty name, skipping", product.productSku());
+        return null;
+    }
+
+    if (product.productAmount() <= 0) {
+        log.warn("Product {} has invalid amount: {}, setting to 0",
+                product.productName(), product.productAmount());
+        return new Product(
+            product.productId(),
+            product.productSku(),
+            product.productName().trim().toUpperCase(),
+            0L,
+            product.productData()
+        );
+    }
+
+    String loyaltyQuery = "SELECT loyalityData FROM loyality_data WHERE productSku = ?";
+    String loyaltyData = null;
+    try {
+        loyaltyData = jdbcTemplate.queryForObject(loyaltyQuery, String.class, product.productSku());
+    } catch (Exception e) {
+        log.debug("No loyalty data found for product SKU: {}", product.productSku());
+    }
+
+    final String enrichedProductData;
+    if (loyaltyData != null) {
+        enrichedProductData = product.productData() + " | Loyalty: " + loyaltyData;
+    } else {
+        enrichedProductData = product.productData();
+    }
+
+    final String normalizedName = product.productName().trim().toUpperCase();
+
+    final Product processedProduct = new Product(
+        product.productId(),
+        product.productSku(),
+        normalizedName,
+        product.productAmount(),
+        enrichedProductData
+    );
+
+    log.info("Processed '{}' -> '{}'", product.productName(), normalizedName);
+
+    return processedProduct;
+}
 
 }
