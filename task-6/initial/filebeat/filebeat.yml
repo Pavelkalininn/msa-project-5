@@ -1,5 +1,5 @@
 filebeat.inputs:
-  - type: docker
+  - type: container
     combine_partial: true
     paths:
       - "/usr/share/dockerlogs/data/*/*.log"
@@ -8,6 +8,16 @@ filebeat.inputs:
       - "*"
     exclude_files: ['\.gz$']
     ignore_older: 10m
+    json.keys_under_root: true
+    json.add_error_key: true
+
+  # Для Nginx логов
+  - type: log
+    paths:
+      - "/usr/share/dockerlogs/nginx/*.json"
+    json.keys_under_root: true
+    json.add_error_key: true
+    tags: ["nginx"]
 
 processors:
   # decode the log field (sub JSON document) if JSON encoded, then maps it's fields to elasticsearch fields
@@ -30,6 +40,7 @@ filebeat.config.modules:
 # setup filebeat to send output to logstash
 output.logstash:
   hosts: ["logstash"]
+  ssl.enabled: false
 
 # Write Filebeat own logs only to file to avoid catching them with itself in docker log files
 logging.level: info

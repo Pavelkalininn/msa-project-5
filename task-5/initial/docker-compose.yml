@@ -46,7 +46,12 @@ services:
     environment:
       - 'discovery.type=single-node'
       - 'xpack.security.enabled=false'
-      - 'ES_JAVA_OPTS=-Xms1g -Xmx1g'
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+      - 'bootstrap.memory_lock=true'
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     healthcheck:
       test: 'curl -f http://localhost:9200 || exit 1'
 
@@ -82,7 +87,7 @@ services:
       test: 'curl -f http://localhost:5601 || exit 1'
 
   filebeat:
-    build: 'filebeat'
+    build: 'filebeat:7.17.28'
     container_name: 'filebeat'
     restart: 'unless-stopped'
     volumes:

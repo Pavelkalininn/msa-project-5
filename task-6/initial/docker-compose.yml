@@ -88,6 +88,8 @@ services:
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock'
       - '/var/lib/docker/containers:/usr/share/dockerlogs/data:rw'
+      - './logs:/usr/share/dockerlogs/data:rw'
+      - './var/log/nginx:/usr/share/dockerlogs/nginx:ro'
     depends_on:
       - 'elasticsearch'
       - 'logstash'
