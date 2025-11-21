@@ -87,7 +87,7 @@ services:
       test: 'curl -f http://localhost:5601 || exit 1'
 
   filebeat:
-    build: 'filebeat:7.17.28'
+    build: 'filebeat'
     container_name: 'filebeat'
     restart: 'unless-stopped'
     volumes:
